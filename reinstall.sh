@@ -6,8 +6,8 @@
 # alpine 默认没有 bash，因此 shebang 用 sh，再 exec 切换到 bash
 
 set -eE
-confhome=https://raw.githubusercontent.com/bin456789/reinstall/main
-confhome_cn=https://cnb.cool/bin456789/reinstall/-/git/raw/main
+confhome=https://raw.githubusercontent.com/MatthewJian/reinstall/ci-stable
+confhome_cn=https://raw.githubusercontent.com/MatthewJian/reinstall/ci-stable
 # confhome_cn=https://www.ghproxy.cc/https://raw.githubusercontent.com/bin456789/reinstall/main
 
 # 用于判断 reinstall.sh 和 trans.sh 是否兼容
@@ -1590,7 +1590,13 @@ Continue?
                 else
                     ci_type=nocloud
                 fi
-                img=$cdimage_mirror/cloud/$codename/latest/debian-$releasever-$ci_type-$basearch_alt.qcow2
+                img="$cdimage_mirror/cloud/$codename/latest/debian-$releasever-$ci_type-$basearch_alt.qcow2"
+                if ! test_url_grace "$img" qemu; then
+                    img="$cdimage_mirror/cloud/$codename/daily/latest/debian-$releasever-$ci_type-$basearch_alt-daily.qcow2"
+                    if [ "$releasever" = 13 ] && ! test_url_grace "$img" qemu; then
+                        img="https://cdimage.debian.org/images/cloud/trixie/20261001-2618/debian-13-$ci_type-$basearch_alt-20261001-2618.qcow2"
+                    fi
+                fi
             fi
             set_osvar img "$img"
         else
